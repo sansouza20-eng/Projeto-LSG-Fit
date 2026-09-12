@@ -10,3 +10,8 @@ routes.use("/users", usersRoutes);
 routes.use("/sessions", sessionsRoutes);
 routes.use("/exercises", exercisesRoutes);
 routes.use("/workout-plan", workoutPlanRoutes);
+routes.get("/health", async (req, res) => {
+    return res.status(200).json({
+        message: "Server is up and running"
+    });
+});
