@@ -1,0 +1,40 @@
+import { Resend } from "resend";
+
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+const EMAIL_FROM = process.env.EMAIL_FROM ?? "LSG FIT <onboarding@resend.dev>";
+
+async function sendCodeEmail(to: string, subject: string, heading: string, code: string) {
+    if (!resend) {
+        // No RESEND_API_KEY configured: print the code to the server console
+        // so registration/login flows stay testable in local development.
+        console.log(`[mailer] ${subject} -> ${to}: code ${code}`);
+        return;
+    }
+
+    // The Resend SDK returns { data, error } instead of throwing on failure,
+    // so a failed send has to be checked for explicitly here.
+    const { error } = await resend.emails.send({
+        from: EMAIL_FROM,
+        to,
+        subject,
+        html: `
+            <div style="font-family: sans-serif; text-align: center;">
+                <h2>${heading}</h2>
+                <p>Use o código abaixo no app LSG FIT. Ele expira em 15 minutos.</p>
+                <p style="font-size: 32px; font-weight: bold; letter-spacing: 8px;">${code}</p>
+            </div>
+        `,
+    });
+
+    if (error) {
+        throw new Error(`Failed to send e-mail via Resend: ${error.message}`);
+    }
+}
+
+export function sendVerificationCodeEmail(to: string, code: string) {
+    return sendCodeEmail(to, "Confirme seu cadastro na LSG FIT", "Confirme seu e-mail", code);
+}
+
+export function sendPasswordResetCodeEmail(to: string, code: string) {
+    return sendCodeEmail(to, "Redefinição de senha - LSG FIT", "Redefinir sua senha", code);
+}

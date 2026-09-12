@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>LSG Fit - Teste da API</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 480px; margin: 40px auto; padding: 0 16px; color: #222; }
+    h1 { font-size: 20px; }
+    h2 { font-size: 16px; margin-top: 32px; }
+    form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+    input { padding: 8px; font-size: 14px; }
+    button { padding: 8px; font-size: 14px; cursor: pointer; }
+    pre { background: #f4f4f4; padding: 12px; border-radius: 4px; white-space: pre-wrap; word-break: break-word; }
+  </style>
+</head>
+<body>
+  <h1>LSG Fit - Teste da API</h1>
+  <p>Página simples para testar as rotas de cadastro e login.</p>
+
+  <h2>Cadastrar usuário</h2>
+  <form id="form-cadastro">
+    <input name="name" placeholder="Nome" required />
+    <input name="email" type="email" placeholder="E-mail" required />
+    <input name="password" type="password" placeholder="Senha" required />
+    <button type="submit">Cadastrar</button>
+  </form>
+
+  <h2>Login</h2>
+  <form id="form-login">
+    <input name="email" type="email" placeholder="E-mail" required />
+    <input name="password" type="password" placeholder="Senha" required />
+    <button type="submit">Entrar</button>
+  </form>
+
+  <h2>Resposta</h2>
+  <pre id="resultado">Nenhuma requisição feita ainda.</pre>
+
+  <script>
+    const resultado = document.getElementById("resultado");
+
+    function mostrar(dados) {
+      resultado.textContent = JSON.stringify(dados, null, 2);
+    }
+
+    document.getElementById("form-cadastro").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const dados = Object.fromEntries(new FormData(event.target));
+      try {
+        const resposta = await fetch("/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados),
+        });
+        mostrar(await resposta.json());
+      } catch (erro) {
+        mostrar({ erro: String(erro) });
+      }
+    });
+
+    document.getElementById("form-login").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const dados = Object.fromEntries(new FormData(event.target));
+      try {
+        const resposta = await fetch("/sessions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados),
+        });
+        mostrar(await resposta.json());
+      } catch (erro) {
+        mostrar({ erro: String(erro) });
+      }
+    });
+  </script>
+</body>
+</html>
